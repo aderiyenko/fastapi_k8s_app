@@ -10,3 +10,9 @@ export MY_GID
 
 test:
 	docker-compose run --rm test
+
+run:
+	docker-compose up -d dev
+
+stop:
+	docker-compose down
