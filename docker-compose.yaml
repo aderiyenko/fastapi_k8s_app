@@ -18,3 +18,13 @@ services:
       - "8000:8000"
     volumes:
       - ./:/app
+
+  test:
+    # not to mess the permissions when linting changes the files. 
+    # run only via Makefile where these env vars are set
+    user: ${MY_UID}:${MY_GID}
+    build:
+      dockerfile: "docker/test.dockerfile"
+      context: "."
+    volumes:
+      - ./:/app
