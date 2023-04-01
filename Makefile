@@ -17,8 +17,10 @@ run:
 stop:
 	docker-compose down
 
-registry:
-	minikube addons enable registry && kubectl port-forward -n kube-system service/registry 5000:80 &
+minikube-prepare:
+	minikube addons enable ingress
+	minikube addons enable registry
+	kubectl port-forward -n kube-system service/registry 5000:80 &
 	docker-compose build prod
 	docker tag fastapi_k8s_app_prod localhost:5000/fastapi_k8s_app_prod
 	docker push localhost:5000/fastapi_k8s_app_prod
