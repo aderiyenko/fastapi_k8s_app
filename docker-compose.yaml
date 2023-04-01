@@ -2,6 +2,7 @@ version: "3.4"
 
 services:
   prod:
+    image: fastapi_k8s_app_prod
     build:
       dockerfile: "docker/prod.dockerfile"
       context: "."
