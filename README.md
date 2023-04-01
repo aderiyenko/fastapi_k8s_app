@@ -54,12 +54,32 @@ make registry
 
 The same command also builds the prod image and pushes it to the running registry.
 
-To find the current URL of the nginx ingress exposed service, launch 
+To find the current URL of the nginx ingress URL, launch 
 
 ```bash
-minikube service -n fastapi-namespace fastapi-service --url
+kubectl -n fastapi-namespace get ingress -o json | jq -r '.items[].status.loadBalancer.ingress[].ip'
 ```
 
-It should output something like `http://192.168.49.2:32723`. If you visit this URL you will see the app output. 
+It should output something like `192.168.49.2`. If you visit this URL (HTTP on port 80) you will see the app output balanced between the two pods evenly (round robin?).
 
-Since there were no specific load balancer logic, we just created a deployment with replica set count of 2 pods. The traffic will be evenly distributed (round robin?) between the pods. Hence the requirement is fulfilled.
+We can setup session affinity (aka sticky sessions) based on cookie or client IP policies as nginx ingress allows. But this is out of scope of this task. 
+
+
+
+### Monitoring
+
+`minikube` has metrics addon, which can be enabled with 
+
+```bash
+minikube addons enable metrics-server
+```
+
+and which shows you VERY basic info about your cluster and deployments. This is by no means a replacement to traditional Grafana + Prometheus tooling set, but for this test purposes it serves the role.
+
+```bash
+minikube dashboard --url=true
+```
+
+will show you the dashboard URL. If you navigate to it, you will be able to manage your deployment (scale up and down) and see the CPU and RAM usage of all your deployment pods.
+
+![monitoring](./docs/images/monitoring.png)
