@@ -83,3 +83,11 @@ minikube dashboard --url=true
 will show you the dashboard URL. If you navigate to it, you will be able to manage your deployment (scale up and down) and see the CPU and RAM usage of all your deployment pods.
 
 ![monitoring](./docs/images/monitoring.png)
+
+
+### Possible Improvements
+
+* Grafana + Prometheus + PVC's + Service Accounts + RBAC
+* Github action to deploy to GKE
+* Adding HPA instead of fixed replicas count
+* restricting RBAC to allow write access only for the service account of Github action and everything else is readonly
