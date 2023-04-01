@@ -4,7 +4,7 @@ In order to launch the project locally you need the following:
 
 * docker engine
 * `docker-compose`
-* `minikube`
+* `minikube` with nginx ingress controller addon enabled
 * `make`
 * `kubectl`
 
@@ -42,13 +42,24 @@ Do not launch `test` service via docker-compose without `MY_GID` and `MY_UID` en
 
 We selected [minikube](https://minikube.sigs.k8s.io/docs/start/) as the local k8s provider. Used docker driver for testing purposes. We will not use Helm or any other release/template manager as it was not requested in the task. We will store the whole manifest in a single `k8s.yaml` file in the project root.
 
+Enable nginx ingress controller addon for `minikube`:
+```bash
+minikube addons enable ingress
+```
+
 Enable `registry` addon of `minikube` to be able to use the local container registry (we could also use Github CR, Google CR, JFrog artifactory local install, but this is out of scope of this task). I created a command that enables the registry addon in minikube as well as forwards port `80` from registry service to port `5000` on your host machine (make sure it's not allocated): 
 ```bash
 make registry
 ```
 
-Build and push the current prod version of the app image to the local minikube registry:
+The same command also builds the prod image and pushes it to the running registry.
+
+To find the current URL of the nginx ingress exposed service, launch 
 
 ```bash
-make push-registry
+minikube service -n fastapi-namespace fastapi-service --url
 ```
+
+It should output something like `http://192.168.49.2:32723`. If you visit this URL you will see the app output. 
+
+Since there were no specific load balancer logic, we just created a deployment with replica set count of 2 pods. The traffic will be evenly distributed (round robin?) between the pods. Hence the requirement is fulfilled.
