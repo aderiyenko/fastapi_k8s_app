@@ -42,17 +42,15 @@ Do not launch `test` service via docker-compose without `MY_GID` and `MY_UID` en
 
 We selected [minikube](https://minikube.sigs.k8s.io/docs/start/) as the local k8s provider. Used docker driver for testing purposes. We will not use Helm or any other release/template manager as it was not requested in the task. We will store the whole manifest in a single `k8s.yaml` file in the project root.
 
-Enable nginx ingress controller addon for `minikube`:
-```bash
-minikube addons enable ingress
-```
+The following make target will:
+* prepare all necessary `minikube` addons (`registry`, `ingress`)
+* setup port forwarding between the registry service and the host machine
+* build the prod image and
+* push it to the local registry
 
-Enable `registry` addon of `minikube` to be able to use the local container registry (we could also use Github CR, Google CR, JFrog artifactory local install, but this is out of scope of this task). I created a command that enables the registry addon in minikube as well as forwards port `80` from registry service to port `5000` on your host machine (make sure it's not allocated): 
 ```bash
-make registry
+make minikube-prepare
 ```
-
-The same command also builds the prod image and pushes it to the running registry.
 
 To find the current URL of the nginx ingress URL, launch 
 
@@ -60,10 +58,11 @@ To find the current URL of the nginx ingress URL, launch
 kubectl -n fastapi-namespace get ingress -o json | jq -r '.items[].status.loadBalancer.ingress[].ip'
 ```
 
+You may need to wait for a couple of minutes till nginx ingress obtains the IP of the docker network via docker minikube virtualization driver.
+
 It should output something like `192.168.49.2`. If you visit this URL (HTTP on port 80) you will see the app output balanced between the two pods evenly (round robin?).
 
 We can setup session affinity (aka sticky sessions) based on cookie or client IP policies as nginx ingress allows. But this is out of scope of this task. 
-
 
 
 ### Monitoring
